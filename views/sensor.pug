@@ -8,6 +8,7 @@ block content
                     thead
                         tr
                             th Property Name
+                            th Property Type
                             th Min Value
                             th Max Value
                             th Unit
@@ -15,6 +16,7 @@ block content
                         each sensor in sensors
                             tr
                                 td= sensor.name 
+                                td= sensor.type 
                                 td= sensor.min  
                                 td= sensor.max 
                                 td= sensor.unit 
@@ -22,12 +24,14 @@ block content
                 form(action='/sensor', method='post')
                     fieldset
                         .form-group.row
-                            .col-sm-6    
+                            .col-sm-3   
                                 input.form-control(type='text', name='name', placeholder='measurement name') 
+                            .col-sm-3    
+                                input.form-control(type='text', name='type', placeholder='int/float/text')                                 
                             .col-sm-2    
-                                input.form-control(type='text', name='min', placeholder='min value') 
+                                input.form-control(type='number', name='min', placeholder='min value') 
                             .col-sm-2    
-                                input.form-control(type='text', name='max', placeholder='max value')                                 
+                                input.form-control(type='number', name='max', placeholder='max value')                                 
                             .col-sm-1    
                                 input.form-control(type='text', name='unit', placeholder='unit')  
                             .col-sm-1

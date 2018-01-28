@@ -9,6 +9,11 @@ block content
                         .form-group.row
                             .col-sm-4
                                 input.form-control(type='text', name='interval', placeholder='telemetry interval in ms (default 60000)')   
+                            .col-sm-5 
+                                select.selectpicker.form-control(name='payload')
+                                    option payload type (select below)
+                                    option(value=0) avro
+                                    option(value=1) json
                             .col-xs-1
                                 button.btn.btn-space.btn-default(type='submit', name='action', value='start') start                                                                   
                             .col-xm-1

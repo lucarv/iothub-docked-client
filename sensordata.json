@@ -1,1 +1,1 @@
-[{"name":"pressure","min":"1000","max":"1020","unit":"atm"}]
+[{"name":"temperature","type":"float","min":0,"max":40,"unit":"C"},{"name":"humidity","type": "float", "min":1,"max":100,"unit":"pc"}]
