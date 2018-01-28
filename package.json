@@ -1,0 +1,30 @@
+{
+  "name": "gen-sim",
+  "version": "0.0.1",
+  "private": true,
+  "license": "MIT",
+  "scripts": {
+    "start": "node ./bin/www port"
+  },
+  "author": "lucarv",
+  "engines": {
+    "node": ">=6.9.1"
+  },
+  "dependencies": {
+    "azure-iot-device": "^1.1.15",
+    "azure-iot-device-mqtt": "^1.1.15",
+    "azure-iothub": "^1.1.12",
+    "body-parser": "~1.17.1",
+    "cookie-parser": "~1.4.3",
+    "debug": "~2.6.3",
+    "dotenv": "^4.0.0",
+    "express": "~4.15.2",
+    "hbs": "~4.0.1",
+    "jsonfile": "^3.0.1",
+    "morgan": "~1.8.1",
+    "pug": "^2.0.0-rc.1",
+    "request-json": "^0.6.2",
+    "serve-favicon": "~2.4.2",
+    "winston": "^2.3.1"
+  }
+}

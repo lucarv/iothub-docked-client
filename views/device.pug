@@ -1,0 +1,14 @@
+extends layout
+
+block content                        
+
+        .panel.panel-default
+            .panel-heading Status
+            .panel-body    
+                p Last Sent Message: #{lsm}
+                form(action='/tele', method='post')
+                    fieldset
+                        .form-group.row
+                           .col-sm-2
+                                button.btn.btn-default(type='submit', name="action", value='refresh') refresh
+        

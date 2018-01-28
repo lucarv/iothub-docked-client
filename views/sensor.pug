@@ -1,0 +1,37 @@
+extends layout
+
+block content                        
+        .panel.panel-default
+            .panel-heading Properties
+            .panel-body    
+                table.table.table-hover
+                    thead
+                        tr
+                            th Property Name
+                            th Min Value
+                            th Max Value
+                            th Unit
+                    tbody
+                        each sensor in sensors
+                            tr
+                                td= sensor.name 
+                                td= sensor.min  
+                                td= sensor.max 
+                                td= sensor.unit 
+                br
+                form(action='/sensor', method='post')
+                    fieldset
+                        .form-group.row
+                            .col-sm-6    
+                                input.form-control(type='text', name='name', placeholder='measurement name') 
+                            .col-sm-2    
+                                input.form-control(type='text', name='min', placeholder='min value') 
+                            .col-sm-2    
+                                input.form-control(type='text', name='max', placeholder='max value')                                 
+                            .col-sm-1    
+                                input.form-control(type='text', name='unit', placeholder='unit')  
+                            .col-sm-1
+                                button.btn.btn-default(type='submit', name="action", value='add') add  
+                        .form-group.row  
+                            .col-sm-6    
+                                button.btn.btn-danger(type='submit', name="action", value='clear') clear all properties            
