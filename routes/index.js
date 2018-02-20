@@ -66,6 +66,7 @@ router.post('/', function (req, res, next) {
     "customerId": req.body.custIdx
   };
   dpsClient.put('/', data, function (err, result, body) {
+    console.log(err)
     if (err)
       res.render('error', { error: err });
     else {
