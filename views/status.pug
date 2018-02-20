@@ -3,12 +3,17 @@ extends layout
 block content
         .panel.panel-default
             .panel-heading Device Status
-            .panel-body        
-                    .form-group.row
-                        .col-sm-12
-                            label Connection State
-                            input.form-control(type='text', placeholder=status, readonly) 
-                    .form-group.row
-                        .col-sm-12
-                            label Last Sent Message
-                            input.form-control(type='text', placeholder=lsm, readonly) 
+            .panel-body    
+                form(action='/status', method='get')
+                    fieldset    
+                        .form-group.row
+                            .col-sm-12
+                                label Connection State
+                                input.form-control(type='text', placeholder=status, readonly) 
+                        .form-group.row
+                            .col-sm-12
+                                label Last Sent Message
+                                input.form-control(type='text', placeholder=lsm, readonly) 
+                        .form-group.row                       
+                            .col-xs-1
+                                button.btn.btn-space.btn-default(type='submit') refresh  

@@ -48,7 +48,7 @@ router.get('/', function (req, res, next) {
       });
     });
   } else {
-    res.render('tele', { title: 'Azure MQTT telemetry Simulator', deviceId: deviceId });
+    res.render('tele', { title: 'Azure IoT Telemetry Simulator', deviceId: deviceId });
   }
 
 });
@@ -69,24 +69,24 @@ router.post('/', function (req, res, next) {
     else {
       cs = {"deviceId": deviceId, "cs": 'HostName=' + hubName + ';DeviceId=' + deviceId + ';SharedAccessKey=' + result.body.deviceKey}
       util.setDev(cs)
-      res.render('status', { title: 'Azure MQTT telemetry Simulator', status: status, lsm: lsm, deviceId: util.getDev().deviceId });
+      res.render('status', { title: 'Azure IoT Telemetry Simulator', status: status, lsm: lsm, deviceId: util.getDev().deviceId });
     }
   });
 });
 
 
 router.get('/status', function (req, res, next) {
-  res.render('status', { title: 'Azure MQTT telemetry Simulator', status: util.getStatus().conn, lsm: util.getStatus().lsm, deviceId: util.getDev().deviceId });
+  res.render('status', { title: 'Azure IoT Telemetry Simulator', status: util.getStatus().conn, lsm: util.getStatus().lsm, deviceId: util.getDev().deviceId });
 });
 
 router.get('/sensor', function (req, res, next) {
   var sensorArray = util.getSensorArray();
-  res.render('sensor', { title: 'Azure MQTT telemetry Simulator', deviceId: util.getDev().deviceId, sensors: sensorArray });
+  res.render('sensor', { title: 'Azure IoT Telemetry Simulator', deviceId: util.getDev().deviceId, sensors: sensorArray });
 });
 
 router.post('/sensor', function (req, res, next) {
   var sensorArray = util.setSensorArray(req.body);
-  res.render('sensor', { title: 'Azure MQTT telemetry Simulator', deviceId: util.getDev().deviceId, sensors: sensorArray });
+  res.render('sensor', { title: 'Azure IoT Telemetry Simulator', deviceId: util.getDev().deviceId, sensors: sensorArray });
 });
 
 module.exports = router;

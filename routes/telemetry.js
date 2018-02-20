@@ -90,7 +90,7 @@ var sendAvro = function () {
 
 router.get('/', function (req, res, next) {
     sensorArray = util.getSensorArray();
-    res.render('tele', { title: 'Azure MQTT telemetry Simulator', deviceId: util.getDev().deviceId });
+    res.render('tele', { title: 'Azure IoT Telemetry Simulator', deviceId: util.getDev().deviceId });
 
 });
 
@@ -109,7 +109,7 @@ router.post('/', function (req, res, next) {
                     console.log('Connected to IoT Hub');
 
                     myTimer = setInterval(teleType === 'json' ? sendJson : sendAvro, interval);
-                    res.render('status', { title: 'Azure MQTT telemetry Simulator', deviceId: util.getDev().deviceId, lsm: 'starting...', status: 'transmitting' });
+                    res.render('status', { title: 'Azure IoT Telemetry Simulator', deviceId: util.getDev().deviceId, lsm: 'starting...', status: 'transmitting' });
 
                     // Send events to IoT Hub on a timer.
 
@@ -126,7 +126,7 @@ router.post('/', function (req, res, next) {
         case ('stop'):
             clearInterval(myTimer);
             util.setStatus({ lsm: lsm, conn: 'silent' });
-            res.render('status', { title: 'Azure MQTT telemetry Simulator', deviceId: util.getDev().deviceId, lsm: lsm, status: 'silent' });
+            res.render('status', { title: 'Azure IoT Telemetry Simulator', deviceId: util.getDev().deviceId, lsm: lsm, status: 'silent' });
             break;
     }
 });
