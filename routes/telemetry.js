@@ -6,7 +6,7 @@ const router = express.Router();
 
 const env = require('dotenv').config();
 const random = require('random-float')
-var util = require('../lib/util');
+const util = require('../lib/util');
 
 const type = avro.parse({
     "name": "telemetry",
@@ -18,16 +18,15 @@ const type = avro.parse({
 })
 
 // IoT Hub setup
-var Protocol = require('azure-iot-device-mqtt').Mqtt;
-var Client = require('azure-iot-device').Client;
-var Message = require('azure-iot-device').Message;
-var client = Client.fromConnectionString(process.env.iotHubConnectionString, Protocol);
+const AMQP = require('azure-iot-device-amqp');
+const MQTT = require('azure-iot-device-mqtt');
+const Message = require('azure-iot-device').Message;
 
-
+var client, Client = require('azure-iot-device').Client;
 var deviceId = 'unknown', devcs = '', hubcs = '', client, status = 'disconnected';
 var sensorArray;
 var cs;
-var myTimer, lsm = 'no telemetry started', interval = 60000, teleType;
+var myTimer, lsm = 'no telemetry started', teleType;
 
 function buildJson() {
     let payload = new Object()
@@ -40,24 +39,6 @@ function buildJson() {
     return payload;
 
 }
-var connectCallback = function (err) {
-    if (err) {
-        console.error('Could not connect to IoT Hub: ' + err.message);
-    } else {
-        console.log('Connected to IoT Hub');
-        setInterval(teleType === 'json' ? sendJson : sendAvro, 5000);
-
-        // Send events to IoT Hub on a timer.
-
-        client.on('error', function (err) {
-            console.error(err.message);
-        });
-
-        client.on('disconnect', function () {
-            client.removeAllListeners();
-        });
-    }
-};
 
 var sendJson = function () {
     let data = JSON.stringify(buildJson());
@@ -66,8 +47,12 @@ var sendJson = function () {
     client.sendEvent(message, function (err) {
         if (err)
             console.log(err.toString());
+        else {
+            console.log('Sending message: ' + message.getData());
+            lsm = new Date().toISOString()
+            util.setStatus({ lsm: lsm, conn: status });
+        }
     });
-
 }
 
 var sendAvro = function () {
@@ -97,6 +82,8 @@ var sendAvro = function () {
 
         console.log('Sending message: ' + message.getData());
         client.sendEvent(message, printResultFor('send'));
+        lsm = new Date().toISOString();
+        util.setStatus({ lsm: lsm, conn: status });
     })
 }
 //routing
@@ -104,12 +91,44 @@ var sendAvro = function () {
 router.get('/', function (req, res, next) {
     sensorArray = util.getSensorArray();
     res.render('tele', { title: 'Azure MQTT telemetry Simulator', deviceId: util.getDev().deviceId });
+
 });
 
 router.post('/', function (req, res, next) {
-    teleType = req.body.payload;
-    client.open(connectCallback);
-    res.render('tele', { title: 'Azure MQTT telemetry Simulator', deviceId: util.getDev().deviceId });
+    switch (req.body.action) {
+        case ('start'):
+            let teleType = (req.body.payload ? req.body.payload : 'json');
+            let protocol = (req.body.protocol ? req.body.protocol : 'mqtt')
+            let interval = (req.body.interval ? parseInt(req.body.interval) : 30000);
+            let clientFromConnectionString = (protocol == 'mqtt' ? MQTT.clientFromConnectionString : AMQP.clientFromConnectionString);
+            client = clientFromConnectionString(util.getDev().cs);
+            client.open(function (err) {
+                if (err) {
+                    console.error('Could not connect to IoT Hub: ' + err.message);
+                } else {
+                    console.log('Connected to IoT Hub');
+
+                    myTimer = setInterval(teleType === 'json' ? sendJson : sendAvro, interval);
+                    res.render('status', { title: 'Azure MQTT telemetry Simulator', deviceId: util.getDev().deviceId, lsm: 'starting...', status: 'transmitting' });
+
+                    // Send events to IoT Hub on a timer.
+
+                    client.on('error', function (err) {
+                        console.error(err.message);
+                    });
+
+                    client.on('disconnect', function () {
+                        client.removeAllListeners();
+                    });
+                };
+            });
+            break;
+        case ('stop'):
+            clearInterval(myTimer);
+            util.setStatus({ lsm: lsm, conn: 'silent' });
+            res.render('status', { title: 'Azure MQTT telemetry Simulator', deviceId: util.getDev().deviceId, lsm: lsm, status: 'silent' });
+            break;
+    }
 });
 
 function printResultFor(op) {
@@ -118,4 +137,5 @@ function printResultFor(op) {
         if (res) console.log(op + ' status: ' + res.constructor.name);
     };
 }
+
 module.exports = router;

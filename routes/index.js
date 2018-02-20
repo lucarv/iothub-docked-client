@@ -12,7 +12,7 @@ var request = require('request');
 var requestJ = require("request-json");
 var registrarUri = 'https://luca-devreg.azurewebsites.net'
 
-var deviceId = '', devcs = '', hubcs = '', client, status = '';
+var deviceId, devcs = '', hubcs = '', client, status = '';
 var cs;
 var myTimer, lsm = 'no telemetry started', interval = 60000;
 var sensorArray = [], twinArray = [], sysArray = [], tagArray = [], propArray = [];
@@ -33,12 +33,10 @@ function printDeviceInfo(err, deviceInfo, res) {
 
 //routing
 router.get('/', function (req, res, next) {
-  var dev = util.getDev();
-  deviceId = dev.deviceId;
+  let dev = util.getDev();
+  deviceId = (dev ? dev.deviceId : os.hostname())
 
-
-  if (!deviceId) {
-    deviceId = os.hostname();
+  if (!dev) {
     request(registrarUri, function (error, response, body) {
       customerList = JSON.parse(body).customerList;
 
@@ -49,9 +47,8 @@ router.get('/', function (req, res, next) {
         customerList: customerList
       });
     });
-    //res.render('new', { title: 'Azure MQTT telemetry Simulator', dev: deviceId, devcs: devcs });
   } else {
-    res.render('tele', { title: 'Azure MQTT telemetry Simulator', deviceId: deviceId, devcs: devcs });
+    res.render('tele', { title: 'Azure MQTT telemetry Simulator', deviceId: deviceId });
   }
 
 });
@@ -59,14 +56,14 @@ router.get('/', function (req, res, next) {
 router.post('/', function (req, res, next) {
   hubName = customerList[req.body.custIdx] + '.azure-devices.net'
   var dpsClient = requestJ.createClient(registrarUri);
+
   if (req.body.deviceId !== '')
-    deviceId = req.body.devID;
+    deviceId = req.body.deviceId;
   var data = {
     "deviceId": deviceId,
     "customerId": req.body.custIdx
   };
   dpsClient.put('/', data, function (err, result, body) {
-    console.log(err)
     if (err)
       res.render('error', { error: err });
     else {

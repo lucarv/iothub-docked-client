@@ -4,7 +4,7 @@
   "private": true,
   "license": "MIT",
   "scripts": {
-    "start": "node ./bin/www port"
+    "start": "node ./bin/www"
   },
   "author": "lucarv",
   "engines": {
@@ -13,6 +13,7 @@
   "dependencies": {
     "avsc": "^5.2.0",
     "azure-iot-device": "^1.1.15",
+    "azure-iot-device-amqp": "^1.3.2",
     "azure-iot-device-mqtt": "^1.1.15",
     "azure-iothub": "^1.1.12",
     "body-parser": "~1.17.1",

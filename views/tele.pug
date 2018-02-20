@@ -8,13 +8,20 @@ block content
                     fieldset
                         .form-group.row
                             .col-sm-4
-                                input.form-control(type='text', name='interval', placeholder='telemetry interval in ms (default 60000)')   
-                            .col-sm-5 
+                                label payload encoding
                                 select.selectpicker.form-control(name='payload')
-                                    option payload type (select below)
-                                    option(value='avro') avro
                                     option(value='json') json
+                                    option(value='avro') avro
+                            .col-sm-4
+                                label application protocol
+                                select.selectpicker.form-control(name='protocol')
+                                    option(value='mqtt') mqtt
+                                    option(value='amqp') amqp    
+                            .col-sm-4
+                                label telemetry interval in ms
+                                input.form-control(type='text', name='interval', placeholder='default 30000 ms')   
+                        .form-group.row                       
                             .col-xs-1
-                                button.btn.btn-space.btn-default(type='submit', name='action', value='start') start                                                                   
+                                button.btn.btn-space.btn-success(type='submit', name='action', value='start') start                                                                   
                             .col-xm-1
-                                button.btn.btn-space.btn-default(type='submit', name='action', value='stop') stop                                           
+                                button.btn.btn-space.btn-danger(type='submit', name='action', value='stop') stop                                           
