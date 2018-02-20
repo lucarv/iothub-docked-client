@@ -4,14 +4,8 @@ var express = require('express');
 var router = express.Router();
 var jsonfile = require('jsonfile')
 var sensorFile = './sensordata.json'
-var twinFile = './twindoc.json'
 var csFile = './cs.json'
 var util = require('../lib/util');
-
-// azure sdk
-var clientFromConnectionString = require('azure-iot-device-mqtt').clientFromConnectionString;
-var client, Client = require('azure-iot-device').Client;
-var desiredVersion = null;
 var hubName, customerList, custIdx;
 
 var request = require('request');
@@ -42,6 +36,7 @@ router.get('/', function (req, res, next) {
   var dev = util.getDev();
   deviceId = dev.deviceId;
 
+
   if (!deviceId) {
     deviceId = os.hostname();
     request(registrarUri, function (error, response, body) {
@@ -56,7 +51,7 @@ router.get('/', function (req, res, next) {
     });
     //res.render('new', { title: 'Azure MQTT telemetry Simulator', dev: deviceId, devcs: devcs });
   } else {
-    res.render('tele', { title: 'Azure MQTT telemetry Simulator', dev: deviceId, devcs: devcs });
+    res.render('tele', { title: 'Azure MQTT telemetry Simulator', deviceId: deviceId, devcs: devcs });
   }
 
 });

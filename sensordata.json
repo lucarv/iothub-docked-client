@@ -1,1 +1,1 @@
-[{"name":"temperature","type":"float","min":0,"max":40,"unit":"C"},{"name":"humidity","type": "float", "min":1,"max":100,"unit":"pc"}]
+[{"name":"Power","type":"float","min":47,"max":49,"unit":"V"},{"name":"Ieff","type":"float","min":1,"max":2,"unit":"A"}, {"name":"Ueff","type":"float","min":8,"max":12,"unit":"A"}]

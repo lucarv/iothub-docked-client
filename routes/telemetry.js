@@ -1,58 +1,103 @@
 'use strict';
-var env = require('dotenv').config();
+const avro = require('avsc'), // nodejs avro implementation
+    streams = require('memory-streams'); // used to pipe the avro buffer to IoT Hub message object
 const express = require('express');
-var router = express.Router();
-const avro = require('avro-js');
+const router = express.Router();
+
+const env = require('dotenv').config();
 const random = require('random-float')
 var util = require('../lib/util');
 
-// azure sdk
-var clientFromConnectionString = require('azure-iot-device-mqtt').clientFromConnectionString;
-var Message = require('azure-iot-device').Message;
-var Client = require('azure-iot-device').Client;
+const type = avro.parse({
+    "name": "telemetry",
+    "type": "record",
+    "fields": [
+        { "name": "temperature", "type": "float" },
+        { "name": "windSpeed", "type": "float" }
+    ]
+})
+
+// IoT Hub setup
 var Protocol = require('azure-iot-device-mqtt').Mqtt;
+var Client = require('azure-iot-device').Client;
+var Message = require('azure-iot-device').Message;
+var client = Client.fromConnectionString(process.env.iotHubConnectionString, Protocol);
+
 
 var deviceId = 'unknown', devcs = '', hubcs = '', client, status = 'disconnected';
-var sensorArray, payloadType;
+var sensorArray;
 var cs;
-var myTimer, lsm = 'no telemetry started', interval = 60000;
+var myTimer, lsm = 'no telemetry started', interval = 60000, teleType;
 
+function buildJson() {
+    let payload = new Object()
 
-// auxiliary functions
-function printResultFor(op) {
-    return function printResult(err, res) {
-        if (err) console.log(op + ' error: ' + err.toString());
-        if (res) console.log(op + ' status: ' + res.constructor.name);
-    };
-}
-
-function buildSchema() {
-    var fieldArray = [];
-
-    for (var i = 0; i < sensorArray.length; i++) {
-        fieldArray[i] = { 'name': sensorArray[i].name, 'type': sensorArray[i].type }
+    let sensors = util.getSensorArray()
+    for (let i = 0; i < sensors.length; i++) {
+        let val = Math.random() * (sensors[i].max - sensors[i].min) + sensors[i].min;
+        payload[sensors[i].name] = val;
     }
+    return payload;
 
-    payloadType = avro.parse({
-        name: 'payload',
-        type: 'record',
-        fields: fieldArray
+}
+var connectCallback = function (err) {
+    if (err) {
+        console.error('Could not connect to IoT Hub: ' + err.message);
+    } else {
+        console.log('Connected to IoT Hub');
+        setInterval(teleType === 'json' ? sendJson : sendAvro, 5000);
+
+        // Send events to IoT Hub on a timer.
+
+        client.on('error', function (err) {
+            console.error(err.message);
+        });
+
+        client.on('disconnect', function () {
+            client.removeAllListeners();
+        });
+    }
+};
+
+var sendJson = function () {
+    let data = JSON.stringify(buildJson());
+    var message = new Message(data);
+
+    client.sendEvent(message, function (err) {
+        if (err)
+            console.log(err.toString());
     });
 
 }
-function composeMessage(type) {
 
-    var payload = {};
+var sendAvro = function () {
+    var avroEncoder = new avro.streams.BlockEncoder(type, { codec: 'deflate' }); // Choose 'deflate' or it will default to 'null'
 
-    for (var i = 0; i < sensorArray.length; i++)
-        payload[sensorArray[i].name] = random(sensorArray[i].max, sensorArray[i].min);
+    // Instantiate a stream to write the avro buffer to, which we'll send to IoT Hub
+    var writer = new streams.WritableStream();
+    avroEncoder.pipe(writer);
 
-    if (type == 0) { //encode avro
-        var buf = payloadType.toBuffer(payload);
-        return buf
+    // Generate the faux json
+    var windSpeed = 10 + (Math.random() * 4); // range: [10, 14]
+    var temperature = 20 + (Math.random() * 5); // range: [20, 25]
+    var json = { windSpeed: windSpeed, temperature: temperature };
+
+    // Write the json
+    if (type.isValid(json)) {
+        avroEncoder.write(json);
     }
-    else
-        return payload;
+
+    // Call end to tell avro we are done writing and to trigger the end event.
+    avroEncoder.end();
+
+    // end event was triggered, get the avro data from the piped stream and send to IoT Hub.
+    avroEncoder.on('end', function () {
+        // call toBuffer on the WriteableStream and pass to IoT Hub message ctor
+        var message = new Message(writer.toBuffer());
+
+        console.log('Sending message: ' + message.getData());
+        client.sendEvent(message, printResultFor('send'));
+    })
 }
 //routing
 
@@ -62,52 +107,15 @@ router.get('/', function (req, res, next) {
 });
 
 router.post('/', function (req, res, next) {
-    var new_lsm = '';
-
-    switch (req.body.action) {
-        case 'start':
-            sensorArray = util.getSensorArray()
-
-            var client = clientFromConnectionString(util.getDev().cs);
-            client.open(function (err) {
-                if (err) {
-                    res.render('error', { error: err });
-                } else {
-                    // Create a message and send it to the IoT Hub at interval
-                    if (req.body.interval !== '')
-                        interval = req.body.interval;
-                    if (req.body.payload == 0)
-                        buildSchema();
-
-                    myTimer = setInterval(function () {
-                        var payload = JSON.stringify(composeMessage(req.body.payload));
-                        var message = new Message(payload);
-
-                        client.sendEvent(message, printResultFor('send'));
-                        lsm = new Date(Date.now()).toUTCString();
-                        util.setStatus({ 'conn': 'sending telemetry data', 'lsm': lsm })
-                    }, interval);
-                    util.setStatus({ 'conn': 'starting to transmit', 'lsm': lsm })
-                    res.render('status', { title: 'Azure MQTT telemetry Simulator', status: 'connected', deviceId: util.getDev().deviceId, lsm: 'starting to transmit' });
-                }
-            });
-            break;
-        case 'replay':
-            //implement
-            res.render('status', { title: 'Azure MQTT telemetry Simulator', deviceId: util.getDev().deviceId, lsm: lsm });
-            break;
-        case 'stop':
-            clearInterval(myTimer);
-            util.setStatus({ 'conn': 'idle', 'lsm': lsm })
-            res.render('status', { title: 'Azure MQTT telemetry Simulator', status: 'idle', deviceId: util.getDev().deviceId, lsm: lsm });
-            break;
-        case 'fault':
-            res.send('not implemented');
-            break;
-        case 'refresh':
-            res.render('status', { title: 'Azure MQTT telemetry Simulator', deviceId: util.getDevId(), lsm: lsm });
-            break;
-    }
+    teleType = req.body.payload;
+    client.open(connectCallback);
+    res.render('tele', { title: 'Azure MQTT telemetry Simulator', deviceId: util.getDev().deviceId });
 });
 
+function printResultFor(op) {
+    return function printResult(err, res) {
+        if (err) console.log(op + ' error: ' + err.toString());
+        if (res) console.log(op + ' status: ' + res.constructor.name);
+    };
+}
 module.exports = router;

@@ -11,7 +11,7 @@
     "node": ">=6.9.1"
   },
   "dependencies": {
-    "avro-js": "^1.8.2",
+    "avsc": "^5.2.0",
     "azure-iot-device": "^1.1.15",
     "azure-iot-device-mqtt": "^1.1.15",
     "azure-iothub": "^1.1.12",
@@ -22,6 +22,7 @@
     "express": "~4.15.2",
     "hbs": "~4.0.1",
     "jsonfile": "^3.0.1",
+    "memory-streams": "^0.1.2",
     "morgan": "~1.8.1",
     "pug": "^2.0.0-rc.1",
     "random-float": "^1.0.0",
