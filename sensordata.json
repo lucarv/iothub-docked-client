@@ -1,1 +1,28 @@
-[{"name":"Power","type":"float","min":47,"max":49,"unit":"V"},{"name":"Ieff","type":"float","min":1,"max":2,"unit":"A"}, {"name":"Ueff","type":"float","min":8,"max":12,"unit":"A"}]
+[
+    {
+        "name": "power",
+        "type": "snapshot",
+        "min": 0,
+        "max": 100,
+        "unit": "kw/w"
+    },
+    {
+        "name": "ieff",
+        "type": "snapshot",
+        "min": 0,
+        "max": 50,
+        "unit": "A"
+    },
+    {
+        "name": "ueff",
+        "type": "snapshot",
+        "min": 0,
+        "max": 2000,
+        "unit": "V"
+    },
+    {
+        "name": "tp",
+        "type": "cumulative",
+        "unit": "V"
+    }
+]

@@ -1,14 +1,19 @@
 extends layout
 
-block content                        
-
-        .panel.panel-default
-            .panel-heading Status
-            .panel-body    
-                p Last Sent Message: #{lsm}
-                form(action='/tele', method='post')
+block content
+    .panel.panel-default
+        .panel-heading Change Device Identity
+        .panel-body 
+            if status == 'off'
+                form(action='/device', method='post')
                     fieldset
                         .form-group.row
-                           .col-sm-2
-                                button.btn.btn-default(type='submit', name="action", value='refresh') refresh
+                            .col-sm-2
+                                input.form-control(type='text', name='deviceId', placeholder='device id') 
+                            .col-sm-8   
+                                input.form-control(type='text', name='cs', placeholder='connection string') 
+                            .col-sm-2
+                                    button.btn.btn-danger(type='submit', name="action", value='refresh') change
+            else
+                p not allowed, transmitting telemetry
         

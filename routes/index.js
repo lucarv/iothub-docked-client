@@ -79,6 +79,16 @@ router.get('/status', function (req, res, next) {
   res.render('status', { title: 'Azure IoT Telemetry Simulator', status: util.getStatus().conn, lsm: util.getStatus().lsm, deviceId: util.getDev().deviceId });
 });
 
+router.get('/device', function (req, res, next) {
+  res.render('device', { title: 'Azure IoT Telemetry Simulator', status: util.getStatus().conn, deviceId: util.getDev().deviceId });
+});
+
+router.post('/device', function (req, res, next) {
+  console.log('Status: ' + util.getStatus().conn)
+  console.log(req.body)
+  res.render('device', { title: 'Azure IoT Telemetry Simulator', status: util.getStatus().conn, deviceId: util.getDev().deviceId });
+});
+
 router.get('/sensor', function (req, res, next) {
   var sensorArray = util.getSensorArray();
   res.render('sensor', { title: 'Azure IoT Telemetry Simulator', deviceId: util.getDev().deviceId, sensors: sensorArray });

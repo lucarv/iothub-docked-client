@@ -23,8 +23,8 @@ const MQTT = require('azure-iot-device-mqtt');
 const Message = require('azure-iot-device').Message;
 
 var client, Client = require('azure-iot-device').Client;
-var deviceId = 'unknown', devcs = '', hubcs = '', client, status = 'disconnected';
-var sensorArray;
+var deviceId = 'unknown', devcs = '', hubcs = '', client, status = 'off';
+var sensorArray, lastVal = 0;
 var cs;
 var myTimer, lsm = 'no telemetry started', teleType;
 
@@ -33,7 +33,13 @@ function buildJson() {
 
     let sensors = util.getSensorArray()
     for (let i = 0; i < sensors.length; i++) {
-        let val = Math.random() * (sensors[i].max - sensors[i].min) + sensors[i].min;
+        let val = 0;
+        if (sensors[i].type == 'snapshot')
+            val = Math.random() * (sensors[i].max - sensors[i].min) + sensors[i].min;
+        else {
+            val = lastVal + Math.floor(Math.random() * 11); //not really a good way to do this
+            lastVal = val
+        }
         payload[sensors[i].name] = val;
     }
     return payload;
@@ -44,13 +50,15 @@ var sendJson = function () {
     let data = JSON.stringify(buildJson());
     var message = new Message(data);
 
+    //add some logic here to generate an usage alert
+    message.properties.add('usagealert', 'true');
     client.sendEvent(message, function (err) {
         if (err)
             console.log(err.toString());
         else {
             console.log('Sending message: ' + message.getData());
             lsm = new Date().toISOString()
-            util.setStatus({ lsm: lsm, conn: status });
+            util.setStatus({ lsm: lsm, conn: 'on' });
         }
     });
 }
@@ -83,7 +91,7 @@ var sendAvro = function () {
         console.log('Sending message: ' + message.getData());
         client.sendEvent(message, printResultFor('send'));
         lsm = new Date().toISOString();
-        util.setStatus({ lsm: lsm, conn: status });
+        util.setStatus({ lsm: lsm, conn: 'on' });
     })
 }
 //routing
@@ -125,8 +133,8 @@ router.post('/', function (req, res, next) {
             break;
         case ('stop'):
             clearInterval(myTimer);
-            util.setStatus({ lsm: lsm, conn: 'silent' });
-            res.render('status', { title: 'Azure IoT Telemetry Simulator', deviceId: util.getDev().deviceId, lsm: lsm, status: 'silent' });
+            util.setStatus({ lsm: lsm, conn: 'off' });
+            res.render('status', { title: 'Azure IoT Telemetry Simulator', deviceId: util.getDev().deviceId, lsm: util.getStatus().lsm, status: util.getStatus().conn });
             break;
     }
 });
