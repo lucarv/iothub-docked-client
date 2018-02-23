@@ -26,26 +26,16 @@ html(lang='en')
             span.icon-bar
             span.icon-bar
             span.icon-bar
-        a.navbar-brand(href="#") 
+        a.navbar-brand(href="/") 
             <img src="img/brand.png" width="22" height="22" alt="brand">                   
 
       #navbar-inverse.collapse.navbar-collapse
         ul.nav.navbar-nav
+          li 
+            a( href="/") device  
+          li 
+            a( href="/sensor") sensors                         
 
-          li 
-            a( href="/device") device id
-          li 
-            a( href="/sensor") sensors     
-          li 
-            a( href="/tele") telemetry
-          li 
-            a( href="/status") status                        
-
-        ul.nav.navbar-nav.navbar-right
-          li.ph device id
-          form.navbar-form.navbar-left(action='/device', method='post', id='forma')
-            .form-group
-              input.input-dev.form-control(type='text', name='devID', placeholder=deviceId, readonly="readonly")
 
     block content
 

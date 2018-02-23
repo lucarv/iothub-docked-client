@@ -1,5 +1,9 @@
 /* Sticky footer styles */
 
+.rounded {
+  border-radius: 10px;
+  border-color: black
+}
 
 .bluefooter {
   height: 60px;

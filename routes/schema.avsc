@@ -1,8 +1,0 @@
-{
-    "name": "telemetry",
-    "type": "record",
-    "fields": [
-        { "name": "deviceId", "type": "string" },
-        { "name": "windSpeed", "type": "float" }
-    ]
-}

@@ -1,0 +1,7 @@
+{
+    "name": "telemetry",
+    "type": "record",
+    "fields": [
+        { "name": "power", "type": "float" }
+    ]
+}

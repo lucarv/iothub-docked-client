@@ -1,0 +1,84 @@
+extends layout
+block content
+    .row
+        .col-xs-12
+            .panel.panel-default
+                .panel-heading Device Info
+                .panel-body    
+                    form(action='/device', method='post', id="dev")
+                        fieldset
+                            .form-group.row
+                                .col-sm-6
+                                    label Device Id
+                                    input.form-control(type='text', placeholder=deviceId) 
+                                .col-sm-6
+                                    label IoT Hub
+                                    input.form-control(type='text', placeholder=hubName)  
+                            .form-group.row
+                                .col-sm-2
+                                    button.btn.btn-default(type='submit', form="dev", name="change", value="device") change »                                       
+                    hr                    
+                    form(action='/device', method='post', id="prop")
+                        fieldset
+                            .form-group.row
+                                .col-sm-6
+                                    label Manufacturer
+                                    input.form-control(type='text', name='manuf', placeholder=properties.manufacturer) 
+                                .col-sm-6   
+                                    label Serial Number
+                                    input.form-control(type='text', name='sn', placeholder=properties.serialNumber) 
+                            .form-group.row
+                                .col-sm-2
+                                    button.btn.btn-default(type='submit', form="prop", name="change", value="twin") change »
+    .row
+        .col-xs-6
+            .panel.panel-default
+                .panel-heading Connection to Azure
+                .panel-body        
+                    form(action='/connect', method='post', id='conn')
+                        fieldset
+                            .form-group.row                       
+                                .col-xs-12
+                                    label Status
+                                    input.form-control(type='text', placeholder=(connected ? 'on' : 'off'), readonly)
+                                    br
+                                .col-xs-12
+                                    label Since
+                                    input.form-control(type='text', placeholder=since, readonly) 
+                                    br
+                                .col-xs-12
+                                    button.btn.btn-space.btn-default(type='submit', form='conn')  toggle »
+
+        .col-xs-6
+            .panel.panel-default
+                .panel-heading Telemetry
+                .panel-body 
+                    form(action='/telemetry', method='post', id='tele')
+                        fieldset
+                            .form-group.row                       
+                                .col-xs-4
+                                    label Payload Type
+                                    input.form-control(type='text', placeholder=settings.payload, readonly) 
+                                    br
+                                .col-xs-4
+                                    label Protocol
+                                    input.form-control(type='text', placeholder=settings.protocol, readonly) 
+                                    br
+                                .col-xs-4
+                                    label Frequency
+                                    input.form-control(type='text', placeholder=settings.frequency, readonly) 
+                                    br
+                                .col-xs-6
+                                    label Status
+                                    input.form-control(type='text', placeholder=(telemetry ? 'on' : 'off'), readonly) 
+                                .col-xs-6
+                                    label Since
+                                    input.form-control(type='text', placeholder=lsm, readonly) 
+                                    br
+                                .col-xs-12
+                                    button.btn.btn-space.btn-default(type='submit', id='tele')  toggle »
+    hr
+    .row
+        .col-xs-12
+            footer
+                p © Copyright 2017

@@ -4,7 +4,7 @@ block content
     .panel.panel-default
         .panel-heading Change Device Identity
         .panel-body 
-            if status == 'off'
+            if !telemetry
                 form(action='/device', method='post')
                     fieldset
                         .form-group.row
@@ -13,7 +13,7 @@ block content
                             .col-sm-8   
                                 input.form-control(type='text', name='cs', placeholder='connection string') 
                             .col-sm-2
-                                    button.btn.btn-danger(type='submit', name="action", value='refresh') change
+                                    button.btn.btn-danger(type='submit') change
             else
                 p not allowed, transmitting telemetry
         
