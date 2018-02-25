@@ -1,4 +1,1 @@
-{
-    "deviceId": "91gg2t",
-    "cs": "HostName=saas-iothub-2914c242-10fa-429c-9970-2180f55f2c65.azure-devices.net;DeviceId=91gg2t;SharedAccessKey=l9fjNuPzWQ6GAQPccEOgdVHqncbPPDaDmnFf/U5ZtPs="
-}
+{"deviceId":"testdev001","cs":"HostName=luca-cgw.azure-devices.net;DeviceId=testdev001;SharedAccessKey=nnLGTmAERBv8M1ySN15T2DiPlWTcAlfE/0ERwapevfA=","tenantId":"testTenant001"}

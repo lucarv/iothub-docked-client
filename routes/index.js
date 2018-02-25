@@ -80,8 +80,8 @@ var connectCallback = (err) => {
 var payloadCB = (data) => {
   var message = new Message(data);
   client.sendEvent(message, (err, res) => console.log(`Sent message: ${message.getData()}` +
-  (err ? `; error: ${err.toString()}` : '') +
-  (res ? `; status: ${res.constructor.name}` : '')));
+    (err ? `; error: ${err.toString()}` : '') +
+    (res ? `; status: ${res.constructor.name}` : '')));
 }
 
 
@@ -90,8 +90,8 @@ function sendTelemetry() {
     let data = util.buildJson();
     var message = new Message(data);
     client.sendEvent(message, (err, res) => console.log(`Sent message: ${message.getData()}` +
-    (err ? `; error: ${err.toString()}` : '') +
-    (res ? `; status: ${res.constructor.name}` : '')));
+      (err ? `; error: ${err.toString()}` : '') +
+      (res ? `; status: ${res.constructor.name}` : '')));
   } else {
     let data = util.buildAvro(payloadCB)
   }
@@ -99,7 +99,7 @@ function sendTelemetry() {
 function renderSPA(res) {
   res.render('spa', {
     title: 'Azure IoT Telemetry Simulator',
-    deviceId: util.getDev().deviceId, hubName: hubName,
+    deviceId: util.getDev().deviceId, tenantId: util.getDev().tenantId, hubName: hubName,
     connected: connected, since: since,
     telemetry: telemetry, lsm: lsm,
     properties: properties, settings: settings
@@ -109,7 +109,7 @@ function renderSPA(res) {
 router.get('/', function (req, res, next) {
   since = new Date().toISOString()
   let dev = util.getDev();
-  deviceId = (dev ? dev.deviceId : os.hostname())
+  deviceId = (dev ? dev.deviceId : '')
 
   if (!dev) {
     request(registrarUri, function (error, response, body) {
@@ -117,7 +117,6 @@ router.get('/', function (req, res, next) {
 
       res.render('new', {
         title: "Azure MQTT telemetry Simulator",
-        deviceId: deviceId,
         status: 'inactive',
         customerList: customerList
       });
@@ -135,8 +134,8 @@ router.post('/', function (req, res, next) {
   hubName = customerList[req.body.custIdx] + '.azure-devices.net'
   var dpsClient = requestJ.createClient(registrarUri);
 
-  if (req.body.deviceId !== '')
-    deviceId = req.body.deviceId;
+  let deviceId = req.body.deviceId;
+  let tenantId = req.body.tenantId;
   var data = {
     "deviceId": deviceId,
     "customerId": req.body.custIdx
@@ -145,9 +144,9 @@ router.post('/', function (req, res, next) {
     if (err)
       res.render('error', { error: err });
     else {
-      cs = { "deviceId": deviceId, "cs": 'HostName=' + hubName + ';DeviceId=' + deviceId + ';SharedAccessKey=' + result.body.deviceKey }
+      let cs = { "deviceId": deviceId, "cs": 'HostName=' + hubName + ';DeviceId=' + deviceId + ';SharedAccessKey=' + result.body.deviceKey, "tenantId": tenantId }
       util.setDev(cs)
-      res.render('status', { title: 'Azure IoT Telemetry Simulator', status: status, lsm: lsm, deviceId: util.getDev().deviceId });
+      renderSPA(res);
     }
   });
 });

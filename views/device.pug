@@ -9,11 +9,13 @@ block content
                     fieldset
                         .form-group.row
                             .col-sm-2
-                                input.form-control(type='text', name='deviceId', placeholder='device id') 
+                                label Device Id
+                                input.form-control(type='text', name='deviceId') 
                             .col-sm-8   
-                                input.form-control(type='text', name='cs', placeholder='connection string') 
+                                label Connection String
+                                input.form-control(type='text', name='cs') 
                             .col-sm-2
-                                    button.btn.btn-danger(type='submit') change
+                                button.btn.btn-primary(type='submit', name="change", value='identity') register        
             else
                 p not allowed, transmitting telemetry
         

@@ -8,9 +8,12 @@ block content
                     form(action='/device', method='post', id="dev")
                         fieldset
                             .form-group.row
-                                .col-sm-6
+                                .col-sm-3
                                     label Device Id
                                     input.form-control(type='text', placeholder=deviceId) 
+                                .col-sm-3
+                                    label Tenant Id
+                                    input.form-control(type='text', placeholder=tenantId) 
                                 .col-sm-6
                                     label IoT Hub
                                     input.form-control(type='text', placeholder=hubName)  

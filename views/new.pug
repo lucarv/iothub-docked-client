@@ -20,30 +20,24 @@ html(lang='en')
     .panel.panel-default
       .panel-heading Register Device
       .panel-body        
-        //form(action='/device', method='post', id='regform')
+        form(action='/', method='post')
           fieldset
             .form-group.row
+              .col-sm-2
+                label Device Id
+                input.form-control(type='text', name='deviceId' required) 
+              .col-sm-2
+                label Tenant Id
+                input.form-control(type='text', name='tenantId' required)
               .col-sm-5
-                input.form-control(type='text', name='deviceId') 
-              .col-sm-5
+                label IoT Hub
                 select.selectpicker.form-control(name='custIdx')
                   each customer, i in customerList
                     option(value=i) #{customer}
+            .form-group-row
               .col-sm-2
-                button.btn.btn-primary(type='submit', form='regform', name="change", value='register') register        
-                button.btn.btn-default(type='submit', form="dev", name="change", value="device") change »                                       
-        form(action='/device', method='post', id="reg")
-                        fieldset
-                            .form-group.row
-                                .col-sm-6
-                                    label Manufacturer
-                                    input.form-control(type='text', name='manuf', placeholder=properties.manufacturer) 
-                                .col-sm-6   
-                                    label Serial Number
-                                    input.form-control(type='text', name='sn', placeholder=properties.serialNumber) 
-                            .form-group.row
-                                .col-sm-2
-                                    button.btn.btn-default(type='submit', form="prop", name="change", value="id") change »    
+                button.btn.btn-default(type='submit') register »       
+
 
 
 
