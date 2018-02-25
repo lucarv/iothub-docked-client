@@ -31,8 +31,8 @@ var properties = {
 
 // settings: desired properties
 var settings = {
-  'frequency': 'not set',
-  'payload': 'not set',
+  'frequency': '5000',
+  'payload': 'json',
   'protocol': 'mqtt'
 }
 
@@ -85,7 +85,9 @@ var payloadCB = (data) => {
 
 
 function sendTelemetry() {
-  if (settings.payload == 'json') {
+  if (settings.payload == 'avro')
+    let data = util.buildAvro(payloadCB);
+  else {
     let data = util.buildJson();
     var message = new Message(data);
     message.properties.add("tenant", util.getDev().tenantId);
@@ -93,13 +95,11 @@ function sendTelemetry() {
     client.sendEvent(message, (err, res) => console.log(`Sent message: ${message.getData()}` +
       (err ? `; error: ${err.toString()}` : '') +
       (res ? `; status: ${res.constructor.name}` : '')));
-  } else {
-    let data = util.buildAvro(payloadCB)
   }
 }
 function renderSPA(res) {
   res.render('spa', {
-    title: 'Azure IoT Telemetry Simulator',
+    title: 'Azure IoT Telemetry Simulat{r',
     deviceId: util.getDev().deviceId, tenantId: util.getDev().tenantId, hubName: hubName,
     connected: connected, since: since,
     telemetry: telemetry, lsm: lsm,
