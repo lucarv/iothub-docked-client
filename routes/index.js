@@ -38,7 +38,6 @@ var settings = {
 
 // Handle settings changes that come from Microsoft IoT Central via the device twin.
 function handleSettings(twin) {
-
   twin.on('properties.desired', function (desiredChange) {
     for (let setting in desiredChange) {
       if (settings[setting])
@@ -89,6 +88,8 @@ function sendTelemetry() {
   if (settings.payload == 'json') {
     let data = util.buildJson();
     var message = new Message(data);
+    message.properties.add("tenant", util.getDev().tenantId);
+
     client.sendEvent(message, (err, res) => console.log(`Sent message: ${message.getData()}` +
       (err ? `; error: ${err.toString()}` : '') +
       (res ? `; status: ${res.constructor.name}` : '')));
