@@ -85,9 +85,9 @@ var payloadCB = (data) => {
 
 
 function sendTelemetry() {
-  if (settings.payload == 'avro')
-    let data = util.buildAvro(payloadCB);
-  else {
+  if (settings.payload == 'avro') {
+    let data = util.buildAvro(payloadCB)
+  } else {
     let data = util.buildJson();
     var message = new Message(data);
     message.properties.add("tenant", util.getDev().tenantId);
@@ -95,11 +95,11 @@ function sendTelemetry() {
     client.sendEvent(message, (err, res) => console.log(`Sent message: ${message.getData()}` +
       (err ? `; error: ${err.toString()}` : '') +
       (res ? `; status: ${res.constructor.name}` : '')));
-  }
+  } 
 }
 function renderSPA(res) {
   res.render('spa', {
-    title: 'Azure IoT Telemetry Simulat{r',
+    title: 'Azure IoT Telemetry Simulator',
     deviceId: util.getDev().deviceId, tenantId: util.getDev().tenantId, hubName: hubName,
     connected: connected, since: since,
     telemetry: telemetry, lsm: lsm,
