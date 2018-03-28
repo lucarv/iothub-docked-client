@@ -48,6 +48,7 @@ function handleSettings(twin) {
       looper = setInterval(sendTelemetry, settings.frequency);
     }
   })
+  util.setProps(settings);
 }
 
 var sendDeviceProperties = function (twin) {
@@ -125,7 +126,8 @@ router.get('/', function (req, res, next) {
   } else {
     let cs = util.getDev().cs;
     let semicolon = cs.indexOf(';');
-    hubName = cs.substring(9, semicolon)
+    hubName = cs.substring(9, semicolon);
+
     renderSPA(res);
   }
 
@@ -164,6 +166,7 @@ router.post('/connect', function (req, res, next) {
     since = new Date().toISOString()
     //do something here to close the connection
   }
+  util.setProps(settings);
   renderSPA(res);
 });
 
@@ -214,16 +217,5 @@ router.post('/device', function (req, res, next) {
       break;
   }
 });
-
-router.get('/sensor', function (req, res, next) {
-  var sensorArray = util.getSensorArray();
-  res.render('sensor', { title: 'Azure IoT Telemetry Simulator', deviceId: util.getDev().deviceId, sensors: sensorArray });
-});
-
-router.post('/sensor', function (req, res, next) {
-  var sensorArray = util.setSensorArray(req.body);
-  res.render('sensor', { title: 'Azure IoT Telemetry Simulator', deviceId: util.getDev().deviceId, sensors: sensorArray });
-});
-
 
 module.exports = router;

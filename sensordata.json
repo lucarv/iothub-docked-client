@@ -1,28 +1,23 @@
 [
     {
-        "name": "power",
+        "name": "Temp",
         "type": "snapshot",
-        "min": 0,
-        "max": 100,
-        "unit": "kw/w"
+        "min": 18,
+        "max": 28,
+        "unit": "C"
     },
     {
-        "name": "ieff",
-        "type": "snapshot",
-        "min": 0,
-        "max": 50,
-        "unit": "A"
-    },
-    {
-        "name": "ueff",
+        "name": "CO2",
         "type": "snapshot",
         "min": 0,
         "max": 2000,
-        "unit": "V"
+        "unit": "ppm"
     },
     {
-        "name": "tp",
-        "type": "cumulative",
-        "unit": "V"
+        "name": "dB",
+        "type": "snapshot",
+        "min": 20,
+        "max": 120,
+        "unit": "dB"
     }
 ]
