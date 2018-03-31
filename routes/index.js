@@ -19,9 +19,12 @@ const Message = require('azure-iot-device').Message;
 var clientFromConnectionString, client;
 var ConnectionString = require('azure-iot-device').ConnectionString;
 
-var deviceId, devcs = '', hubcs = '';
+var deviceId, devcs = '',
+  hubcs = '';
 var since, connected = false;
-var telemetry = false, looper, lsm = 'no telemetry started';
+var telemetry = false,
+  msgArray = [],
+  looper, fileTimer, lsm = 'no telemetry started';
 
 // properties: reported properties
 var properties = {
@@ -31,9 +34,11 @@ var properties = {
 
 // settings: desired properties
 var settings = {
-  'frequency': '5000',
+  'frequency': 1000,
   'payload': 'json',
-  'protocol': 'mqtt'
+  'protocol': 'mqtt',
+  'type': 'stream',
+  'uploadTimer': 10000
 }
 
 // Handle settings changes that come from Microsoft IoT Central via the device twin.
@@ -84,6 +89,10 @@ var payloadCB = (data) => {
     (res ? `; status: ${res.constructor.name}` : '')));
 }
 
+function uploadFIle() {
+  console.log(JSON.stringify(msgArray));
+}
+
 
 function sendTelemetry() {
   if (settings.payload == 'avro') {
@@ -92,19 +101,29 @@ function sendTelemetry() {
     let data = util.buildJson();
     var message = new Message(data);
     message.properties.add("tenant", util.getDev().tenantId);
-
-    client.sendEvent(message, (err, res) => console.log(`Sent message: ${message.getData()}` +
-      (err ? `; error: ${err.toString()}` : '') +
-      (res ? `; status: ${res.constructor.name}` : '')));
-  } 
+    if (settigns.type == 'stream')
+      client.sendEvent(message, (err, res) => console.log(`Sent message: ${message.getData()}` +
+        (err ? `; error: ${err.toString()}` : '') +
+        (res ? `; status: ${res.constructor.name}` : '')));
+    else {
+      fileTImer = setInterval(uploadFile, settings.uploadTimer);
+      msgArray.push(data);
+    }
+  }
 }
+
 function renderSPA(res) {
   res.render('spa', {
     title: 'Azure IoT Telemetry Simulator',
-    deviceId: util.getDev().deviceId, tenantId: util.getDev().tenantId, hubName: hubName,
-    connected: connected, since: since,
-    telemetry: telemetry, lsm: lsm,
-    properties: properties, settings: settings
+    deviceId: util.getDev().deviceId,
+    tenantId: util.getDev().tenantId,
+    hubName: hubName,
+    connected: connected,
+    since: since,
+    telemetry: telemetry,
+    lsm: lsm,
+    properties: properties,
+    settings: settings
   })
 }
 //routing
@@ -145,9 +164,15 @@ router.post('/', function (req, res, next) {
   };
   dpsClient.put('/', data, function (err, result, body) {
     if (err)
-      res.render('error', { error: err });
+      res.render('error', {
+        error: err
+      });
     else {
-      let cs = { "deviceId": deviceId, "cs": 'HostName=' + hubName + ';DeviceId=' + deviceId + ';SharedAccessKey=' + result.body.deviceKey, "tenantId": tenantId }
+      let cs = {
+        "deviceId": deviceId,
+        "cs": 'HostName=' + hubName + ';DeviceId=' + deviceId + ';SharedAccessKey=' + result.body.deviceKey,
+        "tenantId": tenantId
+      }
       util.setDev(cs)
       renderSPA(res);
     }
@@ -174,8 +199,7 @@ router.post('/telemetry', function (req, res, next) {
   if (!telemetry) {
     telemetry = true;
     looper = setInterval(sendTelemetry, settings.frequency);
-  }
-  else {
+  } else {
     //do something here to close the connection
     telemetry = false;
     clearInterval(looper);
@@ -184,7 +208,11 @@ router.post('/telemetry', function (req, res, next) {
 });
 
 router.get('/device', function (req, res, next) {
-  res.render('device', { title: 'Azure IoT Telemetry Simulator', status: util.getStatus().conn, deviceId: util.getDev().deviceId });
+  res.render('device', {
+    title: 'Azure IoT Telemetry Simulator',
+    status: util.getStatus().conn,
+    deviceId: util.getDev().deviceId
+  });
 });
 
 router.post('/device', function (req, res, next) {
@@ -209,7 +237,10 @@ router.post('/device', function (req, res, next) {
       renderSPA(res);
       break;
     case 'device':
-      res.render('device', { title: 'Azure IoT Telemetry Simulator', status: telemetry });
+      res.render('device', {
+        title: 'Azure IoT Telemetry Simulator',
+        status: telemetry
+      });
       break;
     default:
       console.log(req.body)

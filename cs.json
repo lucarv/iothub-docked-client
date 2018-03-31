@@ -1,0 +1,5 @@
+{
+    "deviceId": "lucaLaptop",
+    "cs": "HostName=iothub-elmia.azure-devices.net;DeviceId=lucaLaptop;SharedAccessKey=CiXl+RG67PqoA0xmYua1JrOyOF21UaRBlisPgctSe6w=",
+    "tenantId": "Microsoft"
+}

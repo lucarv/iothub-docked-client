@@ -59,22 +59,31 @@ block content
                     form(action='/telemetry', method='post', id='tele')
                         fieldset
                             .form-group.row                       
-                                .col-xs-4
-                                    label Payload Type
+                                .col-xs-3
+                                    label Payload
                                     input.form-control(type='text', placeholder=settings.payload, readonly) 
                                     br
-                                .col-xs-4
+                                .col-xs-3
                                     label Protocol
                                     input.form-control(type='text', placeholder=settings.protocol, readonly) 
                                     br
-                                .col-xs-4
-                                    label Frequency
+                                .col-xs-2
+                                    label Tele Freq
                                     input.form-control(type='text', placeholder=settings.frequency, readonly) 
                                     br
-                                .col-xs-6
+                                .col-xs-2
+                                    label Type
+                                    input.form-control(type='text', placeholder=settings.type, readonly) 
+                                    br
+                                .col-xs-2
+                                    label Upload Freq
+                                    input.form-control(type='text', placeholder=settings.fileTimer, readonly) 
+                                    br
+                                .form-group.row                       
+                                .col-xs-3
                                     label Status
                                     input.form-control(type='text', placeholder=(telemetry ? 'on' : 'off'), readonly) 
-                                .col-xs-6
+                                .col-xs-9
                                     label Since
                                     input.form-control(type='text', placeholder=lsm, readonly) 
                                     br
