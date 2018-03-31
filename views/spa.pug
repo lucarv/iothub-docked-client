@@ -62,23 +62,20 @@ block content
                                 .col-xs-3
                                     label Payload
                                     input.form-control(type='text', placeholder=settings.payload, readonly) 
-                                    br
                                 .col-xs-3
                                     label Protocol
                                     input.form-control(type='text', placeholder=settings.protocol, readonly) 
-                                    br
-                                .col-xs-2
-                                    label Tele Freq
-                                    input.form-control(type='text', placeholder=settings.frequency, readonly) 
-                                    br
-                                .col-xs-2
+                                .col-xs-3
                                     label Type
                                     input.form-control(type='text', placeholder=settings.type, readonly) 
-                                    br
-                                .col-xs-2
-                                    label Upload Freq
-                                    input.form-control(type='text', placeholder=settings.fileTimer, readonly) 
-                                    br
+                                if (settings.type=='stream')
+                                    .col-xs-3
+                                        label Tele Freq
+                                        input.form-control(type='text', placeholder=settings.frequency, readonly) 
+                                else
+                                    .col-xs-3
+                                        label File Size
+                                        input.form-control(type='text', placeholder=settings.size, readonly) 
                                 .form-group.row                       
                                 .col-xs-3
                                     label Status

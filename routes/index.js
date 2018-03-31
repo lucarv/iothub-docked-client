@@ -1,10 +1,13 @@
 'use strict';
-var os = require('os');
-var express = require('express');
-var router = express.Router();
+const os = require('os');
+const fs = require('fs');
 
-var csFile = './cs.json'
-var util = require('../lib/util');
+const express = require('express');
+const router = express.Router();
+
+const jsonfile = require('jsonfile')
+const csFile = './cs.json';
+const util = require('../lib/util');
 
 var hubName, customerList, custIdx;
 
@@ -23,7 +26,8 @@ var deviceId, devcs = '',
   hubcs = '';
 var since, connected = false;
 var telemetry = false,
-  msgArray = [],
+  upload = false,
+  msgArray = [], blobFile,
   looper, fileTimer, lsm = 'no telemetry started';
 
 // properties: reported properties
@@ -38,7 +42,20 @@ var settings = {
   'payload': 'json',
   'protocol': 'mqtt',
   'type': 'stream',
-  'uploadTimer': 10000
+  'size': 50
+}
+
+function uploadToBlob(filename) {
+  fs.stat(filename, function (err, stats) {
+    const rr = fs.createReadStream(filename);
+    client.uploadToBlob(filename, rr, stats.size, function (err) {
+      if (err) {
+        console.error('Error uploading file: ' + err.toString());
+      } else {
+        console.log('File uploaded');
+      }
+    });
+  });
 }
 
 // Handle settings changes that come from Microsoft IoT Central via the device twin.
@@ -46,13 +63,14 @@ function handleSettings(twin) {
   twin.on('properties.desired', function (desiredChange) {
     for (let setting in desiredChange) {
       if (settings[setting])
-        settings[setting] = desiredChange[setting].value;
+        settings[setting] = desiredChange[setting];
     }
     if (telemetry) {
       clearInterval(looper);
       looper = setInterval(sendTelemetry, settings.frequency);
     }
   })
+
   util.setProps(settings);
 }
 
@@ -68,7 +86,7 @@ var connectCallback = (err) => {
   if (err) {
     console.log(`Device could not connect to Microsoft IoT Central: ${err.toString()}`);
   } else {
-    console.log('Device successfully connected to Microsoft IoT Central');
+    console.log('Client connected');
     client.getTwin((err, twin) => {
       if (err) {
         console.log(`Error getting device twin: ${err.toString()}`);
@@ -89,11 +107,6 @@ var payloadCB = (data) => {
     (res ? `; status: ${res.constructor.name}` : '')));
 }
 
-function uploadFIle() {
-  console.log(JSON.stringify(msgArray));
-}
-
-
 function sendTelemetry() {
   if (settings.payload == 'avro') {
     let data = util.buildAvro(payloadCB)
@@ -101,18 +114,32 @@ function sendTelemetry() {
     let data = util.buildJson();
     var message = new Message(data);
     message.properties.add("tenant", util.getDev().tenantId);
-    if (settigns.type == 'stream')
+    if (settings.type == 'stream')
       client.sendEvent(message, (err, res) => console.log(`Sent message: ${message.getData()}` +
         (err ? `; error: ${err.toString()}` : '') +
         (res ? `; status: ${res.constructor.name}` : '')));
     else {
-      fileTImer = setInterval(uploadFile, settings.uploadTimer);
+      if (msgArray.length == 0) {
+        let ts = Date.now().toString();
+        blobFile = ts + '.json'
+      }
       msgArray.push(data);
+      jsonfile.writeFile(blobFile, msgArray, function (err) {
+        if (err)
+          console.log(err)
+        else
+        if (msgArray.length > settings.size) {
+          let blobToSend = blobFile;
+          uploadToBlob(blobToSend);
+          msgArray = [];
+          blobFile = ''
+        }
+      });
     }
   }
 }
 
-function renderSPA(res) {
+function renderGUI(res) {
   res.render('spa', {
     title: 'Azure IoT Telemetry Simulator',
     deviceId: util.getDev().deviceId,
@@ -147,7 +174,10 @@ router.get('/', function (req, res, next) {
     let semicolon = cs.indexOf(';');
     hubName = cs.substring(9, semicolon);
 
-    renderSPA(res);
+    uploadFile();
+
+
+    renderGUI(res);
   }
 
 });
@@ -174,7 +204,7 @@ router.post('/', function (req, res, next) {
         "tenantId": tenantId
       }
       util.setDev(cs)
-      renderSPA(res);
+      renderGUI(res);
     }
   });
 });
@@ -192,7 +222,7 @@ router.post('/connect', function (req, res, next) {
     //do something here to close the connection
   }
   util.setProps(settings);
-  renderSPA(res);
+  renderGUI(res);
 });
 
 router.post('/telemetry', function (req, res, next) {
@@ -204,7 +234,7 @@ router.post('/telemetry', function (req, res, next) {
     telemetry = false;
     clearInterval(looper);
   }
-  renderSPA(res);
+  renderGUI(res);
 });
 
 router.get('/device', function (req, res, next) {
@@ -231,10 +261,10 @@ router.post('/device', function (req, res, next) {
         }
       });
 
-      renderSPA(res);
+      renderGUI(res);
     case 'register':
       console.log(req.body)
-      renderSPA(res);
+      renderGUI(res);
       break;
     case 'device':
       res.render('device', {
@@ -244,7 +274,7 @@ router.post('/device', function (req, res, next) {
       break;
     default:
       console.log(req.body)
-      renderSPA(res);
+      renderGUI(res);
       break;
   }
 });

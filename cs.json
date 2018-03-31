@@ -1,5 +1,1 @@
-{
-    "deviceId": "lucaLaptop",
-    "cs": "HostName=iothub-elmia.azure-devices.net;DeviceId=lucaLaptop;SharedAccessKey=CiXl+RG67PqoA0xmYua1JrOyOF21UaRBlisPgctSe6w=",
-    "tenantId": "Microsoft"
-}
+{"deviceId":"surface","cs":"HostName=lucahub4edge.azure-devices.net;DeviceId=surface;SharedAccessKey=rS4XkEHmW7zknB/tyFX9+Rd/dNqahhwygYQfy1XrNsY=","tenantId":"lucainc"}
